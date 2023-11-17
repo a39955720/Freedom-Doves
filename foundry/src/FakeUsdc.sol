@@ -583,7 +583,7 @@ contract BridgeToken is ERC20Burnable {
     Roles.Role private bridgeRoles;
 
     string private constant TOKEN_NAME = "Fake USD Coin";
-    string private constant TOKEN_SYMBOL = "USDC.e";
+    string private constant TOKEN_SYMBOL = "FUSDC.e";
     uint8 private constant TOKEN_DECIMALS = 6;
 
     struct SwapToken {
