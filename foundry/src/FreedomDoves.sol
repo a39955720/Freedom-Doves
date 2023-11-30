@@ -9,6 +9,9 @@ import {AdminNFT} from "./AdminNFT.sol";
 
 error FreedomDoves__UpkeepNotNeeded();
 error FreedomDoves_YouHaveAlreadyLikedThisPost();
+error FreedomDoves_YouHaveAlreadyVotedThisPost();
+error FreedomDoves_YouDontHaveAdminNFT();
+error FreedomDoves_ThisPostHasBeenDeleted();
 
 contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     enum ControllerState {
@@ -20,6 +23,8 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         bytes title;
         bytes content;
         address postAuthors;
+        uint256 postTime;
+        uint256 numberOfDeleteRequest;
         uint256 numberOfLikes;
     }
 
@@ -35,6 +40,9 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 3;
 
+    bytes private constant DELETEDTEXT =
+        "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b5468697320706f737420686173206265656e2064656c65746564210000000000";
+
     IERC20 private immutable i_fusdc;
     AdminNFT private immutable i_adminNFT;
     uint256 private immutable i_interval;
@@ -48,6 +56,8 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     mapping(uint256 => PostData) private s_storePost;
     mapping(uint256 => mapping(uint256 => CommentData)) private s_storeComment;
     mapping(address => mapping(uint256 => bool)) private s_isLiked;
+    mapping(address => mapping(uint256 => bool)) private s_isVoted;
+    mapping(uint256 => bool) private s_isDeleted;
     mapping(uint256 => uint256) private s_numberOfLikesThisWeek;
 
     event RequestedRandomNum(uint256 indexed requestId);
@@ -77,6 +87,8 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
             _title,
             _content,
             msg.sender,
+            block.timestamp,
+            0,
             0
         );
         s_postIdCounter++;
@@ -88,21 +100,43 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         s_commentIdCounter[postId]++;
     }
 
-    function like(uint256 postId) public {
+    function likePost(uint256 postId) public {
         if (s_isLiked[msg.sender][postId] == true) {
             revert FreedomDoves_YouHaveAlreadyLikedThisPost();
         }
         s_isLiked[msg.sender][postId] = true;
         s_storePost[postId].numberOfLikes++;
-        s_numberOfLikesThisWeek[postId]++;
         for (uint8 i = 0; i < 3; i++) {
             if (
-                s_numberOfLikesThisWeek[postId] >
-                s_numberOfLikesThisWeek[s_topThreePostId[i]]
+                s_storePost[postId].numberOfLikes >
+                s_storePost[s_topThreePostId[i]].numberOfLikes &&
+                block.timestamp - s_storePost[postId].postTime < i_interval
             ) {
                 s_topThreePostId[i] = postId;
                 break;
             }
+        }
+    }
+
+    function deletePost(uint256 postId) public {
+        if (i_adminNFT.balanceOf(msg.sender) <= 0) {
+            revert FreedomDoves_YouDontHaveAdminNFT();
+        }
+        if (s_isVoted[msg.sender][postId] == true) {
+            revert FreedomDoves_YouHaveAlreadyVotedThisPost();
+        }
+        if (s_isDeleted[postId] == true) {
+            revert FreedomDoves_ThisPostHasBeenDeleted();
+        }
+        s_isVoted[msg.sender][postId] = true;
+        s_storePost[postId].numberOfDeleteRequest++;
+        if (
+            s_storePost[postId].numberOfDeleteRequest >=
+            i_adminNFT.getTotalSupply() / 2
+        ) {
+            s_isDeleted[postId] = true;
+            s_storePost[postId].title = DELETEDTEXT;
+            s_storePost[postId].content = DELETEDTEXT;
         }
     }
 
@@ -148,9 +182,15 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
                     s_storePost[s_topThreePostId[i]].postAuthors,
                     (randomWords[i] % 900) + 100
                 );
-                i_adminNFT.mintNft(
-                    s_storePost[s_topThreePostId[i]].postAuthors
-                );
+                if (
+                    i_adminNFT.balanceOf(
+                        s_storePost[s_topThreePostId[i]].postAuthors
+                    ) == 0
+                ) {
+                    i_adminNFT.mintNft(
+                        s_storePost[s_topThreePostId[i]].postAuthors
+                    );
+                }
                 s_topThreePostId[i] = 0;
             }
         }
@@ -162,7 +202,7 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         return s_storePost[postId];
     }
 
-    function getPostAmount() public view returns (uint256) {
+    function getTotalPost() public view returns (uint256) {
         return s_postIdCounter;
     }
 
@@ -173,7 +213,7 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         return s_storeComment[postId][commentId];
     }
 
-    function getCommentAmount(uint256 postId) public view returns (uint256) {
+    function getTotalComment(uint256 postId) public view returns (uint256) {
         return s_commentIdCounter[postId];
     }
 }

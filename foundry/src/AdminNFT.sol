@@ -40,4 +40,8 @@ contract AdminNFT is ERC721 {
         }
         s_freedomDovesAddr = freedomDovesAddr;
     }
+
+    function getTotalSupply() public view returns (uint256) {
+        return s_tokenCounter;
+    }
 }

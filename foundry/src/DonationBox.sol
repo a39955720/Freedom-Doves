@@ -2,6 +2,7 @@
 pragma solidity ^0.8.21;
 
 import {PriceConverter} from "./PriceConverter.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 error DonationBox__NotOwner();
 error DonationBox__TransferFailed();
@@ -9,14 +10,14 @@ error DonationBox__TransferFailed();
 contract DonationBox {
     using PriceConverter for uint256;
 
-    address private i_owner;
-    address private i_priceFeed;
+    address private immutable i_owner;
+    AggregatorV3Interface private immutable i_priceFeed;
     address[] private s_listOfCharities;
     mapping(address => uint) private s_totalDonations;
 
     constructor(address priceFeed, address owner) {
         i_owner = owner;
-        i_priceFeed = priceFeed;
+        i_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
     function addCharityList(address charityAddr) public {
@@ -36,6 +37,10 @@ contract DonationBox {
                 revert DonationBox__TransferFailed();
             }
         }
-        // s_totalDonations[msg.sender] += (msg.value).getUsdToEth(i_priceFeed);
+        s_totalDonations[msg.sender] += (msg.value).getAvaxToUsd(i_priceFeed);
+    }
+
+    function usdToAvax(uint256 _usdAmount) public view returns (uint256) {
+        return (_usdAmount).getUsdToAvax(i_priceFeed);
     }
 }

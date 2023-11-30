@@ -23,10 +23,25 @@ library PriceConverter {
     }
 
     /**
-     * @dev Converts the specified USD amount to AVAX based on the current price feed
-     * @param usdAmount The amount in USD to convert
+     * @dev Converts AVAX amount to USD
+     * @param avaxAmount The amount of AVAX to convert
      * @param priceFeed The Chainlink price feed contract
-     * @return The equivalent amount in AVAX with 18 decimals
+     * @return The equivalent amount in USD
+     */
+    function getAvaxToUsd(
+        uint256 avaxAmount,
+        AggregatorV3Interface priceFeed
+    ) internal view returns (uint256) {
+        uint256 avaxPrice = getPrice(priceFeed);
+        uint256 avaxAmountInUsd = avaxPrice * (avaxAmount / 10 ** 18);
+        return avaxAmountInUsd;
+    }
+
+    /**
+     * @dev Converts USD amount to AVAX
+     * @param usdAmount The amount of USD to convert
+     * @param priceFeed The Chainlink price feed contract
+     * @return The equivalent amount in AVAX
      */
     function getUsdToAvax(
         uint256 usdAmount,
