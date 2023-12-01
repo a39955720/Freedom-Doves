@@ -15,8 +15,8 @@ contract DonationBox {
     address[] private s_listOfCharities;
     mapping(address => uint) private s_totalDonations;
 
-    constructor(address priceFeed, address owner) {
-        i_owner = owner;
+    constructor(address priceFeed) {
+        i_owner = msg.sender;
         i_priceFeed = AggregatorV3Interface(priceFeed);
     }
 

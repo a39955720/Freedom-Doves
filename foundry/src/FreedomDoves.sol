@@ -95,6 +95,9 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     }
 
     function newComment(uint256 postId, bytes memory _content) public {
+        if (s_isDeleted[postId] == true) {
+            revert FreedomDoves_ThisPostHasBeenDeleted();
+        }
         uint256 commentId = s_commentIdCounter[postId];
         s_storeComment[postId][commentId] = CommentData(_content, msg.sender);
         s_commentIdCounter[postId]++;
@@ -103,6 +106,9 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     function likePost(uint256 postId) public {
         if (s_isLiked[msg.sender][postId] == true) {
             revert FreedomDoves_YouHaveAlreadyLikedThisPost();
+        }
+        if (s_isDeleted[postId] == true) {
+            revert FreedomDoves_ThisPostHasBeenDeleted();
         }
         s_isLiked[msg.sender][postId] = true;
         s_storePost[postId].numberOfLikes++;

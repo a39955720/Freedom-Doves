@@ -37,3 +37,12 @@ NETWORK_ARGS := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KE
 
 FakeUsdc:
 	@forge script script/DeployFakeUsdc.s.sol:DeployFakeUsdc --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+
+AdminNFT:
+	@forge script script/DeployAdminNFT.s.sol:DeployAdminNFT --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+
+DonationBox:
+	@forge script script/DeployDonationBox.s.sol:DeployDonationBox --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+
+FreedomDoves:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
