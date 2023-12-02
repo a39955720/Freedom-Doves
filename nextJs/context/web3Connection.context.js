@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react"
 import { initializeConnector, Web3ReactHooks } from "@web3-react/core"
 import { CoreWallet } from "@avalabs/web3-react-core-connector"
 
-const Web3ConnectionContext = createContext({})
+const Web3ConnectionContext = createContext({ connector: null, error: undefined, ...Web3ReactHooks })
 
 export function Web3ConnectionContextProvider({ children }) {
     const [error, setError] = useState()
@@ -18,13 +18,7 @@ export function Web3ConnectionContextProvider({ children }) {
     )
 
     return (
-        <Web3ConnectionContext.Provider
-            value={{
-                connector,
-                error,
-                ...hooks,
-            }}
-        >
+        <Web3ConnectionContext.Provider value={{ connector, error, ...hooks }}>
             {children}
         </Web3ConnectionContext.Provider>
     )
