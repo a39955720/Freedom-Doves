@@ -9,18 +9,20 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "next": "14.0.3",
-        "react": "18.2.0",
-        "react-dom": "18.2.0",
-        "moralis": "^2.22.4",
-        "moralis-v1": "^1.13.0",
-        "react-moralis": "^1.4.2",
         "@avalabs/web3-react-core-connector": "1.1.1",
         "@web3-react/core": "8.1.2-beta.0",
+        "moralis": "^2.22.4",
+        "moralis-v1": "^1.13.0",
+        "next": "14.0.3",
+        "openai": "^4.20.1",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "react-moralis": "^1.4.2",
         "styled-components": "5.3.8"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.16",
+        "dotenv": "^16.3.1",
         "eslint": "8.54.0",
         "eslint-config-next": "14.0.3",
         "postcss": "^8.4.31",

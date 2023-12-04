@@ -17,7 +17,7 @@ export function Connect() {
     if (!isActive) {
         return (
             <button
-                className="flex items-center justify-between w-300 h-12 bg-gray-800 rounded-lg border-none transition-colors duration-100 hover:bg-gray-700 text-white px-12 cursor-pointer"
+                className="flex items-center justify-between w-300 h-12 bg-gray-800 font-bold rounded-lg border-none transition-colors duration-100 hover:bg-gray-700 text-white px-12 cursor-pointer"
                 onClick={() => connector.activate().catch((e) => setActivationError(e))}
             >
                 Connect with Core
@@ -27,8 +27,13 @@ export function Connect() {
     }
 
     return (
-        <div className="flex items-center justify-between w-300 h-12 bg-gray-800 rounded-lg border-none transition-colors duration-100 hover:bg-gray-700 text-white px-12 cursor-pointer">
-            <strong>Connected: {truncatedAddress}</strong>
+        <div className="flex items-center justify-between w-300 h-12 bg-gray-800 font-bold rounded-lg border-none transition-colors duration-100 hover:bg-gray-700 text-white px-12 cursor-pointer">
+            <button
+                className="flex items-center justify-between w-300 h-12 bg-gray-800 font-bold rounded-lg border-none transition-colors duration-100 hover:bg-gray-700 text-white px-12 cursor-pointer"
+                onClick={() => location.reload()}
+            >
+                Connected: {truncatedAddress}
+            </button>
         </div>
     )
 }

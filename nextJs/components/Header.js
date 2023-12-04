@@ -10,7 +10,7 @@ export default function Header() {
             </div>
             <div className="flex flex-row items-center">
                 <Link href="/" legacyBehavior>
-                    <a className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 mr-4 px-4 rounded ml-auto">
+                    <a className="bg-gray-800 hover:bg-gray-700 h-12 text-white font-bold py-2 mr-4 px-4 rounded-lg ml-auto flex items-center ">
                         Home
                     </a>
                 </Link>
