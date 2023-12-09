@@ -13,7 +13,7 @@ contract DeployFreedomDoves is Script {
     uint64 subscriptionId = 808;
     bytes32 gasLane =
         0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61;
-    uint32 callbackGasLimit = 500000;
+    uint32 callbackGasLimit = 2500000;
 
     function run() external returns (FreedomDoves) {
         vm.startBroadcast(deployerKey);

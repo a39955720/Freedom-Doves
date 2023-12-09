@@ -12,6 +12,7 @@ error FreedomDoves_YouHaveAlreadyLikedThisPost();
 error FreedomDoves_YouHaveAlreadyVotedThisPost();
 error FreedomDoves_YouDontHaveAdminNFT();
 error FreedomDoves_ThisPostHasBeenDeleted();
+error FreedomDoves_NotOwner();
 
 contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     enum ControllerState {
@@ -41,11 +42,12 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     uint32 private constant NUM_WORDS = 3;
 
     bytes private constant DELETEDTEXT =
-        "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b5468697320706f737420686173206265656e2064656c65746564210000000000";
+        hex"0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b5468697320706f737420686173206265656e2064656c65746564210000000000";
 
     IERC20 private immutable i_fusdc;
     AdminNFT private immutable i_adminNFT;
     uint256 private immutable i_interval;
+    address private immutable i_owner;
 
     ControllerState private s_controllerState;
     uint256 private s_lastTimeStamp;
@@ -80,6 +82,8 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         i_interval = updateInterval;
         s_lastTimeStamp = block.timestamp;
         s_postIdCounter = 1;
+        s_controllerState = ControllerState.OPEN;
+        i_owner = msg.sender;
     }
 
     function newPost(bytes memory _title, bytes memory _content) public {
@@ -146,6 +150,13 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         }
     }
 
+    function setControllerState() public {
+        if (msg.sender != i_owner) {
+            revert FreedomDoves_NotOwner();
+        }
+        s_controllerState = ControllerState.OPEN;
+    }
+
     function checkUpkeep(
         bytes memory /* checkData */
     )
@@ -154,12 +165,22 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         override
         returns (bool upkeepNeeded, bytes memory /* performData */)
     {
-        bool isOpen = ControllerState.OPEN == s_controllerState;
+        bool isOpen = s_controllerState == ControllerState.OPEN;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        bool hasWinner = s_storePost[s_topThreePostId[2]].postAuthors !=
+        bool hasWinner = s_storePost[s_topThreePostId[0]].postAuthors !=
             address(0);
         upkeepNeeded = (timePassed && isOpen && hasWinner);
         return (upkeepNeeded, "0x0");
+    }
+
+    function checkUpkeepp(
+        bytes memory /* checkData */
+    ) public view returns (bool, bool, bool) {
+        bool isOpen = s_controllerState == ControllerState.OPEN;
+        bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
+        bool hasWinner = s_storePost[s_topThreePostId[0]].postAuthors !=
+            address(0);
+        return (isOpen, timePassed, hasWinner);
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
@@ -186,7 +207,7 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
             if (s_storePost[s_topThreePostId[i]].postAuthors != address(0)) {
                 i_fusdc.transfer(
                     s_storePost[s_topThreePostId[i]].postAuthors,
-                    (randomWords[i] % 900) + 100
+                    (randomWords[i] % 900000000) + 100000000
                 );
                 if (
                     i_adminNFT.balanceOf(
@@ -221,5 +242,25 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
 
     function getTotalComment(uint256 postId) public view returns (uint256) {
         return s_commentIdCounter[postId];
+    }
+
+    function getIsLiked(
+        address msgsender,
+        uint256 postId
+    ) public view returns (bool) {
+        return s_isLiked[msgsender][postId];
+    }
+
+    function getIsDeleted(uint256 postId) public view returns (bool) {
+        return s_isDeleted[postId];
+    }
+
+    function getCanVote(
+        address msgsender,
+        uint256 postId
+    ) public view returns (bool) {
+        return
+            !s_isVoted[msgsender][postId] &&
+            i_adminNFT.balanceOf(msgsender) > 0;
     }
 }

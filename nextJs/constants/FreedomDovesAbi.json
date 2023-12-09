@@ -42,6 +42,11 @@
     },
     {
         "inputs": [],
+        "name": "FreedomDoves_NotOwner",
+        "type": "error"
+    },
+    {
+        "inputs": [],
         "name": "FreedomDoves_ThisPostHasBeenDeleted",
         "type": "error"
     },
@@ -121,6 +126,35 @@
     {
         "inputs": [
             {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "name": "checkUpkeepp",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "uint256",
                 "name": "postId",
                 "type": "uint256"
@@ -129,6 +163,30 @@
         "name": "deletePost",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "msgsender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getCanVote",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -162,6 +220,49 @@
                 "internalType": "struct FreedomDoves.CommentData",
                 "name": "",
                 "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getIsDeleted",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "msgsender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "postId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getIsLiked",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -326,6 +427,13 @@
             }
         ],
         "name": "rawFulfillRandomWords",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "setControllerState",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
