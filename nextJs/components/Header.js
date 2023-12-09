@@ -14,11 +14,11 @@ export default function Header() {
                         Home
                     </a>
                 </Link>
-                {/* <Link href="/attendance-record" legacyBehavior>
-                    <a className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 mr-4 px-4 rounded ml-auto">
-                        Attendance record
+                <Link href="/donation-box" legacyBehavior>
+                    <a className="bg-gray-800 hover:bg-gray-700 h-12 text-white font-bold py-2 mr-4 px-4 rounded-lg ml-auto flex items-center">
+                        Donation box
                     </a>
-                </Link> */}
+                </Link>
                 <Connect />
             </div>
         </nav>

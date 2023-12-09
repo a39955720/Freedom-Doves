@@ -33,7 +33,7 @@ library PriceConverter {
         AggregatorV3Interface priceFeed
     ) internal view returns (uint256) {
         uint256 avaxPrice = getPrice(priceFeed);
-        uint256 avaxAmountInUsd = avaxPrice * (avaxAmount / 10 ** 18);
+        uint256 avaxAmountInUsd = (avaxPrice * avaxAmount) / 10 ** 36;
         return avaxAmountInUsd;
     }
 

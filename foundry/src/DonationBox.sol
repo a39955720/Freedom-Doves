@@ -43,4 +43,14 @@ contract DonationBox {
     function usdToAvax(uint256 _usdAmount) public view returns (uint256) {
         return (_usdAmount).getUsdToAvax(i_priceFeed);
     }
+
+    function getListOfCharities() public view returns (address[] memory) {
+        return s_listOfCharities;
+    }
+
+    function getTotalDonations(
+        address msgsender
+    ) public view returns (uint256) {
+        return s_totalDonations[msgsender];
+    }
 }

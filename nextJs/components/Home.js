@@ -371,7 +371,6 @@ export default function Home() {
         getIsLiked()
         getCanVote()
         getIsDeleted()
-        console.log(isDeleted)
     }
 
     useEffect(() => {
