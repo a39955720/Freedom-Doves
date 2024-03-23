@@ -6,9 +6,6 @@
 pragma solidity ^0.8.21;
 
 // Importing external contracts.
-import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AdminNFT} from "./AdminNFT.sol";
 
@@ -19,17 +16,12 @@ error FreedomDoves_YouHaveAlreadyVotedThisPost();
 error FreedomDoves_YouDontHaveAdminNFT();
 error FreedomDoves_ThisPostHasBeenDeleted();
 error FreedomDoves_NotOwner();
+error FreedomDoves_TimeIntervalHasNotPassedYet();
 
 /**
  * @notice FreedomDoves contract - Handles posts, comments, likes, and charitable activities.
  */
-contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
-    // Enumeration for the state of the controller.
-    enum ControllerState {
-        OPEN,
-        CALCULATING
-    }
-
+contract FreedomDoves {
     // Struct to store post data.
     struct PostData {
         bytes title;
@@ -46,13 +38,7 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
         address commentAuthors;
     }
 
-    // Chainlink VRF Variables
-    VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
-    uint64 private immutable i_subscriptionId;
-    bytes32 private immutable i_gasLane;
-    uint32 private immutable i_callbackGasLimit;
-    uint16 private constant REQUEST_CONFIRMATIONS = 3;
-    uint32 private constant NUM_WORDS = 3;
+    // Constant variables.
     bytes private constant DELETEDTEXT =
         hex"0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b5468697320706f737420686173206265656e2064656c65746564210000000000";
 
@@ -63,12 +49,13 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     address private immutable i_owner;
 
     // State variables.
-    ControllerState private s_controllerState;
     uint256 private s_lastTimeStamp;
     uint256 private s_postIdCounter;
     uint256[] private s_topThreePostId = new uint256[](3);
     mapping(uint256 => uint256) private s_commentIdCounter;
     mapping(uint256 => PostData) private s_storePost;
+    mapping(address => uint256) private s_totalUSDCReward;
+    mapping(address => bool) private s_isObtainedNFT;
     mapping(uint256 => mapping(uint256 => CommentData)) private s_storeComment;
     mapping(address => mapping(uint256 => bool)) private s_isLiked;
     mapping(address => mapping(uint256 => bool)) private s_isVoted;
@@ -83,30 +70,17 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
      * @param updateInterval The execution interval of Chainlink Automation.
      * @param fusdcAddr The address of the FUSDC token contract.
      * @param adminNFTAddr The address of the AdminNFT contract.
-     * @param vrfCoordinatorV2 The address of the VRFCoordinatorV2 contract.
-     * @param subscriptionId The subscription ID for Chainlink VRF.
-     * @param gasLane The gas lane for Chainlink VRF.
-     * @param callbackGasLimit The callback gas limit for Chainlink VRF.
      */
     constructor(
         uint256 updateInterval,
         address fusdcAddr,
-        address adminNFTAddr,
-        address vrfCoordinatorV2,
-        uint64 subscriptionId,
-        bytes32 gasLane,
-        uint32 callbackGasLimit
-    ) VRFConsumerBaseV2(vrfCoordinatorV2) {
+        address adminNFTAddr
+    ) {
         i_fusdc = IERC20(fusdcAddr);
         i_adminNFT = AdminNFT(adminNFTAddr);
-        i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
-        i_gasLane = gasLane;
-        i_subscriptionId = subscriptionId;
-        i_callbackGasLimit = callbackGasLimit;
         i_interval = updateInterval;
         s_lastTimeStamp = block.timestamp;
         s_postIdCounter = 1;
-        s_controllerState = ControllerState.OPEN;
         i_owner = msg.sender;
     }
 
@@ -193,96 +167,40 @@ contract FreedomDoves is AutomationCompatibleInterface, VRFConsumerBaseV2 {
     }
 
     /**
-     * @notice Set the controller state to OPEN (owner-only function).
+     * @notice Distributes rewards to the top three post authors.
      */
-    function setControllerState() public {
-        if (msg.sender != i_owner) {
-            revert FreedomDoves_NotOwner();
+    function distributeRewards() public {
+        if (block.timestamp - s_lastTimeStamp < i_interval) {
+            revert FreedomDoves_TimeIntervalHasNotPassedYet();
         }
-        s_controllerState = ControllerState.OPEN;
-    }
-
-    /**
-     * @notice Check if upkeep is needed.
-     * param checkData Additional data for checking upkeep.
-     * @return upkeepNeeded Whether upkeep is needed.
-     * @return performData Data for performing upkeep.
-     */
-    function checkUpkeep(
-        bytes memory /* checkData */
-    )
-        public
-        view
-        override
-        returns (bool upkeepNeeded, bytes memory /* performData */)
-    {
-        bool isOpen = s_controllerState == ControllerState.OPEN;
-        bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        bool hasWinner = s_storePost[s_topThreePostId[0]].postAuthors !=
-            address(0);
-        upkeepNeeded = (timePassed && isOpen && hasWinner);
-        return (upkeepNeeded, "0x0");
-    }
-
-    //For test
-    function checkUpkeepp(
-        bytes memory /* checkData */
-    ) public view returns (bool isOpen, bool timePassed, bool hasWinner) {
-        isOpen = s_controllerState == ControllerState.OPEN;
-        timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
-        hasWinner = s_storePost[s_topThreePostId[0]].postAuthors != address(0);
-        return (isOpen, timePassed, hasWinner);
-    }
-
-    /**
-     * @notice Perform upkeep by requesting random numbers.
-     * param performData Data for performing upkeep.
-     */
-    function performUpkeep(bytes calldata /* performData */) external override {
-        (bool upkeepNeeded, ) = checkUpkeep("");
-        if (!upkeepNeeded) {
-            revert FreedomDoves__UpkeepNotNeeded();
+        if (s_storePost[s_topThreePostId[0]].postAuthors == address(0)) {
+            s_lastTimeStamp = block.timestamp;
+            return;
         }
-        s_controllerState = ControllerState.CALCULATING;
-        uint256 requestId = i_vrfCoordinator.requestRandomWords(
-            i_gasLane,
-            i_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            i_callbackGasLimit,
-            NUM_WORDS
-        );
-        emit RequestedRandomNum(requestId);
-    }
 
-    /**
-     * @notice Fulfillment function for the requested random numbers.
-     * param requestId The ID of the request.
-     * @param randomWords An array of random numbers.
-     */
-    function fulfillRandomWords(
-        uint256 /* requestId*/,
-        uint256[] memory randomWords
-    ) internal override {
-        for (uint8 i = 0; i < 3; i++) {
+        s_lastTimeStamp = block.timestamp;
+
+        for (uint8 i = 3; i > 0; i--) {
             if (s_storePost[s_topThreePostId[i]].postAuthors != address(0)) {
                 i_fusdc.transfer(
                     s_storePost[s_topThreePostId[i]].postAuthors,
-                    (randomWords[i] % 900000000) + 100000000
+                    i * 100000000
                 );
                 if (
-                    i_adminNFT.balanceOf(
+                    s_isObtainedNFT[
                         s_storePost[s_topThreePostId[i]].postAuthors
-                    ) == 0
+                    ] == false
                 ) {
                     i_adminNFT.mintNft(
                         s_storePost[s_topThreePostId[i]].postAuthors
                     );
+                    s_isObtainedNFT[
+                        s_storePost[s_topThreePostId[i]].postAuthors
+                    ] = true;
                 }
-                s_topThreePostId[i] = 0;
             }
+            s_topThreePostId[i] = 0;
         }
-        s_controllerState = ControllerState.OPEN;
-        s_lastTimeStamp = block.timestamp;
     }
 
     /**
