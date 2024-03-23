@@ -35,14 +35,17 @@ coverage :; forge coverage > coverage.txt
 
 NETWORK_ARGS := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast
 
-FakeUsdc:
-	@forge script script/DeployFakeUsdc.s.sol:DeployFakeUsdc --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+Zircuit:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(ZIRCUIT_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast
 
-AdminNFT:
-	@forge script script/DeployAdminNFT.s.sol:DeployAdminNFT --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+ThunderCore:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(THUNDERCORE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast
 
-DonationBox:
-	@forge script script/DeployDonationBox.s.sol:DeployDonationBox --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+Scroll:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(SCROLL_RPC_URL) --private-key $(PRIVATE_KEY) --legacy --broadcast
 
-FreedomDoves:
-	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(AVALANCHE_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(AVALANCHE_ETHERSCAN_API_KEY) -vvvv
+Optimism:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(OPTIMISM_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast
+
+Linea:
+	@forge script script/DeployFreedomDoves.s.sol:DeployFreedomDoves --rpc-url $(LINEA_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast
