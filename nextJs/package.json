@@ -9,7 +9,6 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@avalabs/web3-react-core-connector": "1.1.1",
         "@web3-react/core": "8.1.2-beta.0",
         "moralis": "^2.22.4",
         "moralis-v1": "^1.13.0",
@@ -18,7 +17,8 @@
         "react": "18.2.0",
         "react-dom": "18.2.0",
         "react-moralis": "^1.4.2",
-        "styled-components": "5.3.8"
+        "styled-components": "5.3.8",
+        "web3uikit": "^1.0.4"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.16",

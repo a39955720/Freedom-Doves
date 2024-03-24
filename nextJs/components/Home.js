@@ -1,14 +1,14 @@
-import { useWeb3ConnectionContext } from "../context/web3Connection.context"
 import { FreedomDovesAbi } from "../constants"
 import { useEffect, useState } from "react"
+import { useMoralis, useWeb3Contract } from "react-moralis"
 import { ethers } from "ethers"
 import OpenAI from "openai"
 
 export default function Home() {
-    const { useIsActive, useAccount } = useWeb3ConnectionContext()
+    const { isWeb3Enabled, chainId: chainIdHex, account } = useMoralis()
+    const chainId = parseInt(chainIdHex)
     const [totalPost, setTotalPost] = useState("0")
     const [totalComment, setTotalComment] = useState("0")
-    const [chainId, setChainId] = useState("0")
     const [error, setError] = useState()
     const [showModal_1, setShowModal_1] = useState(false)
     const [showModal_2, setShowModal_2] = useState(false)
@@ -33,23 +33,84 @@ export default function Home() {
     const [_commenter, setCommenter] = useState([])
     const abi = ethers.utils.defaultAbiCoder
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, dangerouslyAllowBrowser: true })
-    const isActive = useIsActive()
     const cards = []
     const cards1 = []
-    const activeAccount = useAccount()
-    const freedomDovesAddress = "0xF69cBC65285A367E97D8dbEd8f6a168617C34b2B"
+
+    const freedomDovesAddress = () => {
+        switch (chainId) {
+            case 11155420:
+                return "0x2b1099443d9e23b4a0928ee0d050f64924f9d0a2"
+                break
+            case 59140:
+                return "0x2b1099443d9e23b4a0928ee0d050f64924f9d0a2"
+                break
+            case 534351:
+                return "0x0416544203031b0cb7b99c0aba0d2d3ea7a62154"
+                break
+            case 18:
+                return "0x2b1099443d9e23b4a0928ee0d050f64924f9d0a2"
+                break
+            case 48899:
+                return "0xca1b22cb75594c94ba231993a70ac6e91a6b5f89"
+                break
+        }
+    }
 
     const networks = {
-        fuji: {
-            chainId: "0xA869",
-            chainName: "Avalanche Testnet C-Chain",
+        zircuit: {
+            chainId: "0xBF03",
+            chainName: "Zircuit",
             nativeCurrency: {
-                name: "Avalanche",
-                symbol: "AVAX",
+                name: "Zircuit1",
+                symbol: "ETH",
                 decimals: 18,
             },
-            rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
-            blockExplorerUrls: ["https://testnet.snowtrace.io/"],
+            rpcUrls: ["https://zircuit1.p2pify.com/"],
+            blockExplorerUrls: ["https://explorer.zircuit.com"],
+        },
+        thundercore: {
+            chainId: "0x12",
+            chainName: "ThunderCore Testnet",
+            nativeCurrency: {
+                name: "ThunderCore",
+                symbol: "ETH",
+                decimals: 18,
+            },
+            rpcUrls: ["https://testnet-rpc.thundercore.com"],
+            blockExplorerUrls: ["https://explorer-testnet.thundercore.com/"],
+        },
+        scroll: {
+            chainId: "0x8274F",
+            chainName: "Scroll Sepolia Testnet",
+            nativeCurrency: {
+                name: "Scroll",
+                symbol: "ETH",
+                decimals: 18,
+            },
+            rpcUrls: ["https://sepolia-rpc.scroll.io/"],
+            blockExplorerUrls: ["https://sepolia-blockscout.scroll.io"],
+        },
+        optimism: {
+            chainId: "0xAA37DC",
+            chainName: "OP Sepolia",
+            nativeCurrency: {
+                name: "Optimism",
+                symbol: "ETH",
+                decimals: 18,
+            },
+            rpcUrls: ["https://sepolia.optimism.io"],
+            blockExplorerUrls: ["https://sepolia-optimistic.etherscan.io"],
+        },
+        linea: {
+            chainId: "0xE704",
+            chainName: "Linea Goerli Testnet",
+            nativeCurrency: {
+                name: "Linea",
+                symbol: "ETH",
+                decimals: 18,
+            },
+            rpcUrls: ["https://rpc.goerli.linea.build"],
+            blockExplorerUrls: ["https://goerli.lineascan.build/"],
         },
     }
 
@@ -75,18 +136,9 @@ export default function Home() {
         await changeNetwork({ networkName, setError })
     }
 
-    const getChainId = async () => {
-        if (isActive) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const network = await provider.getNetwork()
-            const _chainId = network.chainId.toString()
-            setChainId(_chainId)
-        }
-    }
-
     async function getTotalPost() {
         const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
         try {
             const _totalPost = (await contract.getTotalPost()).toString()
             setTotalPost(_totalPost)
@@ -97,7 +149,7 @@ export default function Home() {
 
     async function getPostData() {
         const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
         try {
             const titles = []
             const contents = []
@@ -124,7 +176,7 @@ export default function Home() {
     async function getTotalComment() {
         if (currentId) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+            const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
             try {
                 const _totalComment = (await contract.getTotalComment(currentId)).toString()
                 setTotalComment(_totalComment)
@@ -137,7 +189,7 @@ export default function Home() {
     async function getCommentData() {
         if (totalComment) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+            const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
             try {
                 const comments = []
                 const commenter = []
@@ -161,7 +213,7 @@ export default function Home() {
         const abiEncodeText = abi.encode(["string"], [text])
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, signer)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, signer)
         try {
             const transactionResponse = await contract.newPost(abiEncodeTitle, abiEncodeText)
             const str = "Successfully added a new post."
@@ -176,7 +228,7 @@ export default function Home() {
         setIsLoading1(true)
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, signer)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, signer)
         try {
             const transactionResponse = await contract.likePost(currentId)
             const str = "Successfully like post."
@@ -191,7 +243,7 @@ export default function Home() {
         setIsLoading2(true)
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, signer)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, signer)
         try {
             const transactionResponse = await contract.deletePost(currentId)
             const str = "Successfully voted to delete."
@@ -207,7 +259,7 @@ export default function Home() {
         const abiEncodeComment = abi.encode(["string"], [comment])
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
-        const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, signer)
+        const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, signer)
         try {
             const transactionResponse = await contract.newComment(currentId, abiEncodeComment)
             const str = "Successfully added a new comment."
@@ -221,9 +273,9 @@ export default function Home() {
     async function getIsLiked() {
         if (currentId) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+            const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
             try {
-                const _isLiked = await contract.getIsLiked(activeAccount, currentId)
+                const _isLiked = await contract.getIsLiked(account, currentId)
                 setIsLiked(_isLiked)
             } catch (error) {
                 console.error("Error:", error)
@@ -234,7 +286,7 @@ export default function Home() {
     async function getIsDeleted() {
         if (currentId) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+            const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
             try {
                 const _isDeleted = await contract.getIsDeleted(currentId)
                 setIsDeleted(_isDeleted)
@@ -247,9 +299,9 @@ export default function Home() {
     async function getCanVote() {
         if (currentId) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const contract = new ethers.Contract(freedomDovesAddress, FreedomDovesAbi, provider)
+            const contract = new ethers.Contract(freedomDovesAddress(), FreedomDovesAbi, provider)
             try {
-                const _canVote = await contract.getCanVote(activeAccount, currentId)
+                const _canVote = await contract.getCanVote(account, currentId)
                 setCanVote(_canVote)
             } catch (error) {
                 console.error("Error:", error)
@@ -323,9 +375,6 @@ export default function Home() {
             setShowModal_2(true)
             setIsLoading(false)
         }
-
-        console.log(completion1.choices[0].message.content)
-        console.log(completion2.choices[0].message.content)
     }
 
     const handleClick = (i) => {
@@ -366,7 +415,6 @@ export default function Home() {
         getTotalPost()
         getTotalComment()
         getPostData()
-        getChainId()
         getCommentData()
         getIsLiked()
         getCanVote()
@@ -375,11 +423,16 @@ export default function Home() {
 
     useEffect(() => {
         updateUI()
-    }, [isActive, totalPost, totalComment, showModal_1, showModal_2, showModal_3])
+    }, [isWeb3Enabled, totalPost, totalComment, showModal_1, showModal_2, showModal_3])
 
     return (
         <div className="flex mt-10">
-            {isActive && chainId == "43113" ? (
+            {isWeb3Enabled &&
+            (chainId == "11155420" ||
+                chainId == "59140" ||
+                chainId == "534351" ||
+                chainId == "18" ||
+                chainId == "48899") ? (
                 <div className="ml-10 mr-10 flex flex-col w-full">
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded mr-10 w-full"
@@ -532,17 +585,47 @@ export default function Home() {
                 </div>
             ) : (
                 <div className="flex flex-col items-start mt-10">
-                    <div className="ml-10 text-xl">
-                        Please switch to the Avalanche Fuji C-Chain and connect to a wallet.
-                    </div>
+                    <div className="ml-10 text-xl">Please connect to a wallet and switch to the following chain.</div>
                     <div class="flex">
                         <button
                             onClick={() => {
-                                handleNetworkSwitch("fuji")
+                                handleNetworkSwitch("optimism")
                             }}
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
                         >
-                            Switch to Avalanche Fuji C-Chain
+                            OP Sepolia
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleNetworkSwitch("linea")
+                            }}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
+                        >
+                            Linea Goerli Testnet
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleNetworkSwitch("scroll")
+                            }}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
+                        >
+                            Scroll Sepolia Testnet
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleNetworkSwitch("thundercore")
+                            }}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
+                        >
+                            ThunderCore Testnet
+                        </button>
+                        <button
+                            onClick={() => {
+                                handleNetworkSwitch("zircuit")
+                            }}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
+                        >
+                            Zircuit Testnet
                         </button>
                     </div>
                 </div>

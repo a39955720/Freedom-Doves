@@ -1,441 +1,316 @@
 [
     {
-        "inputs": [
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "updateInterval",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "fusdcAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "adminNFTAddr",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "FreedomDoves_ThisPostHasBeenDeleted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FreedomDoves_TimeIntervalHasNotPassedYet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FreedomDoves_YouDontHaveAdminNFT",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FreedomDoves_YouHaveAlreadyLikedThisPost",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FreedomDoves_YouHaveAlreadyVotedThisPost",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "requestId",
+          "type": "uint256"
+        }
+      ],
+      "name": "RequestedRandomNum",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "deletePost",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "distributeRewards",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "msgsender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCanVote",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "commentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCommentData",
+      "outputs": [
+        {
+          "components": [
             {
-                "internalType": "uint256",
-                "name": "updateInterval",
-                "type": "uint256"
+              "internalType": "bytes",
+              "name": "content",
+              "type": "bytes"
             },
             {
-                "internalType": "address",
-                "name": "fusdcAddr",
-                "type": "address"
+              "internalType": "address",
+              "name": "commentAuthors",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct FreedomDoves.CommentData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getIsDeleted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "msgsender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getIsLiked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPostData",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "title",
+              "type": "bytes"
             },
             {
-                "internalType": "address",
-                "name": "adminNFTAddr",
-                "type": "address"
+              "internalType": "bytes",
+              "name": "content",
+              "type": "bytes"
             },
             {
-                "internalType": "address",
-                "name": "vrfCoordinatorV2",
-                "type": "address"
+              "internalType": "address",
+              "name": "postAuthors",
+              "type": "address"
             },
             {
-                "internalType": "uint64",
-                "name": "subscriptionId",
-                "type": "uint64"
+              "internalType": "uint256",
+              "name": "postTime",
+              "type": "uint256"
             },
             {
-                "internalType": "bytes32",
-                "name": "gasLane",
-                "type": "bytes32"
+              "internalType": "uint256",
+              "name": "numberOfDeleteRequest",
+              "type": "uint256"
             },
             {
-                "internalType": "uint32",
-                "name": "callbackGasLimit",
-                "type": "uint32"
+              "internalType": "uint256",
+              "name": "numberOfLikes",
+              "type": "uint256"
             }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
+          ],
+          "internalType": "struct FreedomDoves.PostData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FreedomDoves_NotOwner",
-        "type": "error"
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTotalComment",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FreedomDoves_ThisPostHasBeenDeleted",
-        "type": "error"
+      "inputs": [],
+      "name": "getTotalPost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FreedomDoves_YouDontHaveAdminNFT",
-        "type": "error"
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        }
+      ],
+      "name": "likePost",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FreedomDoves_YouHaveAlreadyLikedThisPost",
-        "type": "error"
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "postId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_content",
+          "type": "bytes"
+        }
+      ],
+      "name": "newComment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FreedomDoves_YouHaveAlreadyVotedThisPost",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "FreedomDoves__UpkeepNotNeeded",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "have",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "want",
-                "type": "address"
-            }
-        ],
-        "name": "OnlyCoordinatorCanFulfill",
-        "type": "error"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "requestId",
-                "type": "uint256"
-            }
-        ],
-        "name": "RequestedRandomNum",
-        "type": "event"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "name": "checkUpkeep",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "upkeepNeeded",
-                "type": "bool"
-            },
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "name": "checkUpkeepp",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "deletePost",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "msgsender",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getCanVote",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "commentId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getCommentData",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "bytes",
-                        "name": "content",
-                        "type": "bytes"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "commentAuthors",
-                        "type": "address"
-                    }
-                ],
-                "internalType": "struct FreedomDoves.CommentData",
-                "name": "",
-                "type": "tuple"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getIsDeleted",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "msgsender",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getIsLiked",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getPostData",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "bytes",
-                        "name": "title",
-                        "type": "bytes"
-                    },
-                    {
-                        "internalType": "bytes",
-                        "name": "content",
-                        "type": "bytes"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "postAuthors",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "postTime",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "numberOfDeleteRequest",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "numberOfLikes",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct FreedomDoves.PostData",
-                "name": "",
-                "type": "tuple"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getTotalComment",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getTotalPost",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            }
-        ],
-        "name": "likePost",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "postId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bytes",
-                "name": "_content",
-                "type": "bytes"
-            }
-        ],
-        "name": "newComment",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "_title",
-                "type": "bytes"
-            },
-            {
-                "internalType": "bytes",
-                "name": "_content",
-                "type": "bytes"
-            }
-        ],
-        "name": "newPost",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "name": "performUpkeep",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "requestId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "randomWords",
-                "type": "uint256[]"
-            }
-        ],
-        "name": "rawFulfillRandomWords",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "setControllerState",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_title",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_content",
+          "type": "bytes"
+        }
+      ],
+      "name": "newPost",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
-]
+  ]
