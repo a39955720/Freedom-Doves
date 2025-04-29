@@ -294,7 +294,7 @@ export default function Home() {
                         title,
                 },
             ],
-            model: "gpt-3.5-turbo",
+            model: "gpt-4o-mini",
             max_tokens: 1,
         })
 
@@ -307,7 +307,7 @@ export default function Home() {
                         text,
                 },
             ],
-            model: "gpt-3.5-turbo",
+            model: "gpt-4o-mini",
             max_tokens: 1,
         })
 
@@ -335,14 +335,18 @@ export default function Home() {
 
     for (let i = totalPost - 1; i >= 1; i--) {
         if (_title[i]) {
+            const isDeletedPost = _title[i] === "This post has been deleted!"
             cards.push(
                 <div
-                    className="w-full mt-5 bg-white rounded-lg shadow-md p-4 cursor-pointer transition duration-300 ease-in-out transform hover:bg-gray-200 hover:shadow-lg"
+                    key={i}
+                    className={`w-full mt-5 rounded-lg shadow-md p-4 cursor-pointer transition duration-300 ease-in-out transform hover:shadow-lg ${
+                        isDeletedPost ? "bg-red-600 hover:bg-red-500" : "bg-gray-700 hover:bg-gray-600"
+                    }`}
                     onClick={() => handleClick(i)}
                 >
-                    <div class="flex flex-col">
-                        <h3 class="text-xl font-semibold">{_title[i]}</h3>
-                        <p class="text-gray-600 mt-2">{_content[i].substring(0, 200) + "..."}</p>
+                    <div className="flex flex-col">
+                        <h3 className="text-xl text-white font-semibold">{_title[i]}</h3>
+                        <p className="text-gray-300 mt-2">{_content[i].substring(0, 200) + "..."}</p>
                     </div>
                 </div>,
             )
@@ -352,10 +356,10 @@ export default function Home() {
     for (let i = 0; i < totalComment; i++) {
         if (_comment[i]) {
             cards1.push(
-                <div className="bg-gray-200 mt-5 rounded-lg shadow-md p-4 w-full">
-                    <div class="flex flex-col">
-                        <p class="text-gray-500 font-semibold">{_commenter[i]}</p>
-                        <p class="text-black text-lg">{_comment[i]}</p>
+                <div key={i} className="bg-gray-700 mt-5 rounded-lg shadow-md p-4 w-full">
+                    <div className="flex flex-col">
+                        <p className="text-gray-400 font-semibold">{_commenter[i]}</p>
+                        <p className="text-white text-lg mt-2">{_comment[i]}</p>
                     </div>
                 </div>,
             )
@@ -378,48 +382,51 @@ export default function Home() {
     }, [isActive, totalPost, totalComment, showModal_1, showModal_2, showModal_3])
 
     return (
-        <div className="flex mt-10">
+        <div className="flex bg-gray-900 min-h-screen text-gray-100">
             {isActive && chainId == "43113" ? (
-                <div className="ml-10 mr-10 flex flex-col w-full">
+                <div className="mx-10 flex flex-col w-full">
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded mr-10 w-full"
+                        className="mt-10 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-lg mb-6 w-full"
                         onClick={() => setShowModal_1(true)}
                     >
-                        Create a post
+                        Create a Post
                     </button>
-                    <div className="flex flex-wrap mt-5">{cards}</div>
+
+                    <div className="flex flex-wrap gap-4">{cards}</div>
+
+                    {/* Create Post Modal */}
                     {showModal_1 && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
-                            <div className="bg-white p-5 rounded w-3/4 bg-gray-200 h-screen overflow-y-scroll">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 overflow-y-auto">
+                            <div className="bg-gray-800 p-6 rounded-lg w-11/12 max-w-3xl max-h-screen overflow-y-auto">
                                 <input
                                     placeholder="Title"
-                                    className="border-2 border-blue-500 w-full mt-5 px-4 py-3 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                                    className="border-2 border-gray-600 bg-gray-900 text-white w-full mt-4 px-4 py-3 rounded focus:outline-none focus:ring focus:border-blue-400"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                 />
                                 <textarea
                                     placeholder="Text"
-                                    className="border-2 border-blue-500 w-full h-3/4 mt-10 px-4 py-3 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                                    className="border-2 border-gray-600 bg-gray-900 text-white w-full h-64 mt-6 px-4 py-3 rounded focus:outline-none focus:ring focus:border-blue-400"
                                     value={text}
                                     onChange={(e) => setText(e.target.value)}
                                 />
-                                <div className="flex mt-4 justify-center">
+                                <div className="flex justify-center mt-6 gap-6">
                                     <button
-                                        className="bg-blue-500 hover:bg-blue-700 text-white mr-5 font-bold py-2 px-4 rounded"
+                                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded"
                                         onClick={() => creatPost()}
                                     >
                                         {isLoading ? (
-                                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                            <div className="animate-spin h-6 w-6 border-2 border-b-0 rounded-full border-white"></div>
                                         ) : (
                                             "Post"
                                         )}
                                     </button>
                                     <button
-                                        className="bg-blue-500 hover:bg-blue-700 text-white ml-5 font-bold py-2 px-4 rounded"
+                                        className="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded"
                                         onClick={() => setShowModal_1(false)}
                                     >
                                         {isLoading ? (
-                                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                            <div className="animate-spin h-6 w-6 border-2 border-b-0 rounded-full border-white"></div>
                                         ) : (
                                             "Close"
                                         )}
@@ -428,119 +435,112 @@ export default function Home() {
                             </div>
                         </div>
                     )}
+
+                    {/* Result Modal */}
                     {showModal_2 && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                            <div className="bg-white p-5 rounded">
-                                <h2 className="text-2xl mb-4">{results}</h2>
-                                <div className="flex mt-4 justify-center">
-                                    <button
-                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                        onClick={() => setShowModal_2(false)}
-                                    >
-                                        Close
-                                    </button>
-                                </div>
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+                            <div className="bg-gray-800 p-6 rounded-lg text-center">
+                                <h2 className="text-2xl mb-6">{results}</h2>
+                                <button
+                                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded"
+                                    onClick={() => setShowModal_2(false)}
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                     )}
+
+                    {/* View Post Modal */}
                     {showModal_3 && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
-                            <div className="bg-white p-5 rounded w-3/4 bg-gray-200 h-screen overflow-y-scroll">
-                                <button
-                                    className="bg-white hover:bg-gray-200 text-black font-bold py-2 px-4 rounded"
-                                    style={{ float: "right" }}
-                                    onClick={() => setShowModal_3(false)}
-                                >
-                                    X
-                                </button>
-                                <h1 class="text-3xl font-semibold mt-5">{_title[currentId]}</h1>
-                                <h3 class="text-black text-xl mt-5">Authors:{_authors[currentId]}</h3>
-                                <p class="text-black text-xl mt-5" style={{ whiteSpace: "pre-wrap" }}>
-                                    {_content[currentId]}
-                                </p>
-                                <div className="mt-10">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 overflow-y-auto">
+                            <div className="bg-gray-800 p-6 rounded-lg w-11/12 max-w-4xl max-h-screen overflow-y-auto">
+                                <div className="flex justify-end">
+                                    <button
+                                        className="text-gray-300 hover:text-white"
+                                        onClick={() => setShowModal_3(false)}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                <h1 className="text-3xl font-bold mt-4">{_title[currentId]}</h1>
+                                <h3 className="text-gray-400 text-xl mt-2">Authors: {_authors[currentId]}</h3>
+                                <p className="text-gray-300 text-lg mt-6 whitespace-pre-wrap">{_content[currentId]}</p>
+
+                                <div className="flex flex-wrap gap-4 mt-8">
                                     {!isLiked && !isDeleted ? (
                                         <button
-                                            className="bg-blue-500 hover:bg-blue-700 text-white mr-5 font-bold py-2 px-4 rounded"
+                                            className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded"
                                             onClick={() => likePost()}
                                         >
                                             {isLoading1 ? (
-                                                <div className="animate-spin spinner-border h-5 w-5 border-b-2 rounded-full"></div>
+                                                <div className="animate-spin h-5 w-5 border-2 border-b-0 rounded-full border-white"></div>
                                             ) : (
-                                                <>LIKE&nbsp;&nbsp;{_like[currentId]}</>
+                                                <>LIKE&nbsp;{_like[currentId]}</>
                                             )}
                                         </button>
                                     ) : (
-                                        <box className="bg-gray-500 text-white mr-5 font-bold py-2 px-4 rounded">
-                                            LIKE {"\u00A0"}
-                                            {"\u00A0"}
-                                            {_like[currentId]}
-                                        </box>
+                                        <div className="bg-gray-600 text-white font-bold py-2 px-6 rounded flex items-center">
+                                            LIKE&nbsp;{_like[currentId]}
+                                        </div>
                                     )}
+
                                     {canVote ? (
                                         <button
-                                            className="bg-blue-500 hover:bg-blue-700 text-white mr-5 font-bold py-2 px-4 rounded"
+                                            className="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded"
                                             onClick={() => deletePost()}
                                         >
                                             {isLoading2 ? (
-                                                <div className="animate-spin spinner-border h-5 w-5 border-b-2 rounded-full"></div>
+                                                <div className="animate-spin h-5 w-5 border-2 border-b-0 rounded-full border-white"></div>
                                             ) : (
-                                                <>DELETE</>
+                                                "DELETE"
                                             )}
                                         </button>
                                     ) : (
-                                        <box className="bg-gray-500 text-white mr-5 font-bold py-2 px-4 rounded">
+                                        <div className="bg-gray-600 text-white font-bold py-2 px-6 rounded flex items-center">
                                             DELETE
-                                        </box>
+                                        </div>
                                     )}
                                 </div>
+
                                 <textarea
-                                    className="mt-10 border-2 border-blue-500 w-full px-4 py-3 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                                    className="mt-10 border-2 border-gray-600 bg-gray-900 text-white w-full px-4 py-3 rounded focus:outline-none focus:ring focus:border-blue-400"
                                     value={comment}
                                     placeholder="Write a new comment."
                                     onChange={(e) => setComment(e.target.value)}
                                 />
                                 {!isDeleted ? (
                                     <button
-                                        className="bg-blue-500 hover:bg-blue-700 text-white mr-5 font-bold py-2 px-4 rounded"
-                                        style={{ float: "right" }}
+                                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded float-right mt-4"
                                         onClick={() => newComment()}
                                     >
                                         {isLoading3 ? (
-                                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                            <div className="animate-spin h-5 w-5 border-2 border-b-0 rounded-full border-white"></div>
                                         ) : (
-                                            <>COMMENT</>
+                                            "COMMENT"
                                         )}
                                     </button>
                                 ) : (
-                                    <box
-                                        className="bg-gray-500 text-white mr-5 font-bold py-2 px-4 rounded"
-                                        style={{ float: "right" }}
-                                    >
+                                    <div className="bg-gray-600 text-white font-bold py-2 px-6 rounded float-right mt-4">
                                         COMMENT
-                                    </box>
+                                    </div>
                                 )}
-                                <h1 class="text-xl font-semibold mt-10">
-                                    Comment {"\u00A0"}
-                                    {"\u00A0"}
-                                    {totalComment}
-                                </h1>
-                                <div className="flex flex-wrap">{cards1}</div>
+
+                                <h1 className="text-2xl font-bold mt-14 mb-4">Comments ({totalComment})</h1>
+                                <div className="flex flex-wrap gap-4">{cards1}</div>
                             </div>
                         </div>
                     )}
                 </div>
             ) : (
-                <div className="flex flex-col items-start mt-10">
-                    <div className="ml-10 text-xl">
+                <div className="flex flex-col items-center justify-center w-full mt-20">
+                    <div className="text-2xl text-gray-300 mb-6">
                         Please switch to the Avalanche Fuji C-Chain and connect to a wallet.
                     </div>
-                    <div class="flex">
+                    <div className="flex">
                         <button
-                            onClick={() => {
-                                handleNetworkSwitch("fuji")
-                            }}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
+                            onClick={() => handleNetworkSwitch("fuji")}
+                            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded"
                         >
                             Switch to Avalanche Fuji C-Chain
                         </button>

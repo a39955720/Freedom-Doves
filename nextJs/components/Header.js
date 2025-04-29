@@ -3,20 +3,20 @@ import Link from "next/link"
 
 export default function Header() {
     return (
-        <nav className="p-5 border-b-10 flex flex-row justify-between items-center bg-blue-600">
+        <nav className="p-4 border-b border-gray-700 flex justify-between items-center bg-black">
             <div className="flex items-center">
-                <img src="/logo.png" className="my-auto h-20 w-20 ml-5" />
-                <h1 className="font-orbitron py-4 px-4 font-bold text-4xl ml-5">Freedom Doves</h1>
+                <img src="/logo.png" className="h-16 w-16 ml-4" alt="Logo" />
+                <h1 className="font-orbitron text-white font-bold text-3xl ml-4">Freedom Doves</h1>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex items-center space-x-4">
                 <Link href="/" legacyBehavior>
-                    <a className="bg-gray-800 hover:bg-gray-700 h-12 text-white font-bold py-2 mr-4 px-4 rounded-lg ml-auto flex items-center ">
+                    <a className="bg-blue-600 hover:bg-gray-700 text-white font-semibold py-2 px-5 rounded-lg flex items-center transition">
                         Home
                     </a>
                 </Link>
                 <Link href="/donation-box" legacyBehavior>
-                    <a className="bg-gray-800 hover:bg-gray-700 h-12 text-white font-bold py-2 mr-4 px-4 rounded-lg ml-auto flex items-center">
-                        Donation box
+                    <a className="bg-blue-600 hover:bg-gray-700 text-white font-semibold py-2 px-5 rounded-lg flex items-center transition">
+                        Donation Box
                     </a>
                 </Link>
                 <Connect />

@@ -13,10 +13,8 @@ library PriceConverter {
      * @param priceFeed The Chainlink price feed contract
      * @return The latest price in AVAX with 18 decimals
      */
-    function getPrice(
-        AggregatorV3Interface priceFeed
-    ) internal view returns (uint256) {
-        (, int256 answer, , , ) = priceFeed.latestRoundData();
+    function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {
+        (, int256 answer,,,) = priceFeed.latestRoundData();
         uint256 decimals = (18 - priceFeed.decimals());
         uint256 avaxPrice = uint256(answer) * (10 ** decimals);
         return avaxPrice;
@@ -28,12 +26,9 @@ library PriceConverter {
      * @param priceFeed The Chainlink price feed contract
      * @return The equivalent amount in USD
      */
-    function getAvaxToUsd(
-        uint256 avaxAmount,
-        AggregatorV3Interface priceFeed
-    ) internal view returns (uint256) {
+    function getAvaxToUsd(uint256 avaxAmount, AggregatorV3Interface priceFeed) internal view returns (uint256) {
         uint256 avaxPrice = getPrice(priceFeed);
-        uint256 avaxAmountInUsd = (avaxPrice * avaxAmount) / 10 ** 36;
+        uint256 avaxAmountInUsd = (avaxPrice * avaxAmount) / 1e30;
         return avaxAmountInUsd;
     }
 
@@ -43,10 +38,7 @@ library PriceConverter {
      * @param priceFeed The Chainlink price feed contract
      * @return The equivalent amount in AVAX
      */
-    function getUsdToAvax(
-        uint256 usdAmount,
-        AggregatorV3Interface priceFeed
-    ) internal view returns (uint256) {
+    function getUsdToAvax(uint256 usdAmount, AggregatorV3Interface priceFeed) internal view returns (uint256) {
         uint256 avaxPrice = getPrice(priceFeed);
         uint256 usdAmountInAvax = (usdAmount * 10 ** 36) / avaxPrice;
         return usdAmountInAvax;

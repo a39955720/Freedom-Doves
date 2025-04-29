@@ -8,19 +8,17 @@ export default function DonationBox() {
     const [chainId, setChainId] = useState("0")
     const [totalUSD, setTotalUSD] = useState("")
     const [totalAvax, setTotalAvax] = useState("")
+    const [totalDonation, setTotalDonation] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const isActive = useIsActive()
-    const donationBoxAddress = "0xeAB21Bf0da78C6bfe0b5D725899311D34E4db3D0"
+    const account = useAccount()
+    const donationBoxAddress = "0xb2bb2cf50a7efbad1541d3ac12887b5c3ee6fd8f"
 
     const networks = {
         fuji: {
             chainId: "0xA869",
             chainName: "Avalanche Testnet C-Chain",
-            nativeCurrency: {
-                name: "Avalanche",
-                symbol: "AVAX",
-                decimals: 18,
-            },
+            nativeCurrency: { name: "Avalanche", symbol: "AVAX", decimals: 18 },
             rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
             blockExplorerUrls: ["https://testnet.snowtrace.io/"],
         },
@@ -31,21 +29,21 @@ export default function DonationBox() {
             if (!window.ethereum) throw new Error("No crypto wallet found")
             await window.ethereum.request({
                 method: "wallet_addEthereumChain",
-                params: [
-                    {
-                        ...networks[networkName],
-                    },
-                ],
+                params: [{ ...networks[networkName] }],
             })
         } catch (err) {
             setError(err.message)
-            console.log(error)
+            console.log(err)
         }
     }
 
     const handleNetworkSwitch = async (networkName) => {
         setError()
         await changeNetwork({ networkName, setError })
+    }
+
+    const setError = (error) => {
+        if (error) console.error("Error:", error)
     }
 
     const getChainId = async () => {
@@ -70,16 +68,28 @@ export default function DonationBox() {
         }
     }
 
+    async function getTotalDonation() {
+        if (isActive && account) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const contract = new ethers.Contract(donationBoxAddress, DonationBoxAbi, provider)
+            try {
+                const _totalDonation = await contract.getTotalDonations(account)
+                setTotalDonation(ethers.utils.formatUnits(_totalDonation, 6))
+            } catch (error) {
+                console.error("Error:", error)
+            }
+        }
+    }
+
     async function donate() {
         setIsLoading(true)
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
         const contract = new ethers.Contract(donationBoxAddress, DonationBoxAbi, signer)
         try {
-            const transactionResponse = await contract.donate({
-                value: totalAvax,
-            })
+            const transactionResponse = await contract.donate({ value: totalAvax })
             await listenForTransactionMine(transactionResponse, provider)
+            await getTotalDonation()
         } catch (error) {
             setIsLoading(false)
         }
@@ -90,9 +100,11 @@ export default function DonationBox() {
             try {
                 provider.once(transactionResponse.hash, (transactionReceipt) => {
                     setIsLoading(false)
+                    resolve()
                 })
             } catch (error) {
                 setIsLoading(false)
+                reject(error)
             }
         })
     }
@@ -100,50 +112,50 @@ export default function DonationBox() {
     async function updateUI() {
         getChainId()
         getUsdToAvax()
+        getTotalDonation()
     }
 
     useEffect(() => {
         updateUI()
-        updateUI()
     }, [isActive, totalUSD])
 
     return (
-        <div>
+        <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col justify-center items-center">
             {isActive && chainId == "43113" ? (
-                <div className="flex justify-center items-center h-screen">
-                    <p class="text-black text-xl mt-5 mr-5 mb-20">Donate:</p>
+                <div className="flex flex-col justify-center items-center space-y-6">
+                    <p className="text-2xl font-semibold">Donate</p>
+
+                    <p className="text-lg text-gray-300">
+                        Total Donated: {totalDonation ? `$${totalDonation}` : "Loading..."} USD
+                    </p>
+
                     <input
                         placeholder="Enter the dollar amount you want to donate."
-                        className="border-2 border-blue-500 w-1/4 mt-5 px-4 py-3 mb-20 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                        className="border-2 border-gray-600 bg-gray-800 text-white w-[400px] max-w-xl px-4 py-3 rounded-md focus:outline-none focus:ring focus:border-blue-400"
                         value={totalUSD}
                         onChange={(e) => setTotalUSD(e.target.value)}
                     />
+
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white mr-5 font-bold py-2 px-4 rounded mb-14 ml-5"
+                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-md"
                         onClick={() => donate()}
                     >
                         {isLoading ? (
-                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                            <div className="animate-spin h-6 w-6 border-2 border-b-0 rounded-full border-white"></div>
                         ) : (
                             "Send"
                         )}
                     </button>
                 </div>
             ) : (
-                <div className="flex flex-col items-start mt-10">
-                    <div className="ml-10 text-xl">
-                        Please switch to the Avalanche Fuji C-Chain and connect to a wallet.
-                    </div>
-                    <div class="flex">
-                        <button
-                            onClick={() => {
-                                handleNetworkSwitch("fuji")
-                            }}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-10 mt-10"
-                        >
-                            Switch to Avalanche Fuji C-Chain
-                        </button>
-                    </div>
+                <div className="flex flex-col justify-center items-center text-center space-y-6 mt-10">
+                    <div className="text-2xl">Please switch to the Avalanche Fuji C-Chain and connect to a wallet.</div>
+                    <button
+                        onClick={() => handleNetworkSwitch("fuji")}
+                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-md"
+                    >
+                        Switch to Avalanche Fuji C-Chain
+                    </button>
                 </div>
             )}
         </div>
